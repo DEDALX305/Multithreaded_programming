@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-// -fopenmp
 int main(int argc, char* argv[]) {
 
 	if (argc != 2)
