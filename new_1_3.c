@@ -1,4 +1,4 @@
-#include <errno.h>
+﻿#include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
 #include <stdio.h>
@@ -11,33 +11,10 @@
 #include <math.h>
 #include <unistd.h>
 
-void random_point(double* x, double* y) {
-    double divisor = RAND_MAX / 2.0;
-    *x = rand() / divisor - 1;
-    *y = rand() / divisor - 1;
-}
-
-int count_points_inside_circle(int iters) {
-    int inside = 0;
-    for (int i = 0; i < iters; ++i) {
-        double x;
-        double y;
-        random_point(&x, &y);
-        if (((x * x) + (y * y)) <= 1) {
-            ++inside;
-        }
-    }
-    return inside;
-}
-
 int main(int argc, char** argv) {
-    if (argc != 3) {
-        printf("Usage: pi_mq <procs> <iters>\n");
-        return 0;
-    }
 
-    int procs = atoi(argv[1]);
-    int iters = atoi(argv[2]);
+	int procs = 4;
+	int iters = 10000;
 
     struct mq_attr attr = {0};
     attr.mq_flags = 0;
@@ -58,7 +35,20 @@ int main(int argc, char** argv) {
         }
         else if (pid == 0) {
             srand(time(NULL) ^ getpid());
-            int count = count_points_inside_circle(iters);
+			// Начало расчета количества точек в круге -----------------------------------------------
+			int inside = 0;
+			for (int i = 0; i < iters; ++i) {
+				double x;
+				double y;
+				double divisor = RAND_MAX / 2.0;
+				x = rand() / divisor - 1;
+				y = rand() / divisor - 1;
+				if (((x * x) + (y * y)) <= 1) {
+					++inside;
+				}
+			}
+			int count = inside;
+			// Конец расчета количества точек в круге ------------------------------------------------
             if (mq_send(mqd, (char*)&count, sizeof(count), 0) == -1) {
                 int err = errno;
                 fprintf(stderr, "%d (%s): failed to send message\n", err, strerror(err));
