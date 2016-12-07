@@ -1,22 +1,18 @@
-#include<math.h> 
-#include<sys/types.h>
-#include<sys/wait.h>
-#include<errno.h>
+п»ї#include <math.h> 
+#include <errno.h>
 #include <unistd.h>
-#include <stdlib.h>
+#include <time.h>
+#include <fcntl.h>
+#include <mqueue.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <math.h>
-#include <time.h>
+#include <sys/wait.h>
 
-#define min_a 1000 //Начальный радиус
+#define min_a 1000 //РќР°С‡Р°Р»СЊРЅС‹Р№ СЂР°РґРёСѓСЃ
 
-double circle(double, double); //Выдает квадрат y в зависимости от координаты Х и радиуса круга.
+double circle(double, double); //Р’С‹РґР°РµС‚ РєРІР°РґСЂР°С‚ y РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ РҐ Рё СЂР°РґРёСѓСЃР° РєСЂСѓРіР°.
 // -fopenmp
 int main(int argc, char* argv[])
 {
@@ -24,9 +20,9 @@ int main(int argc, char* argv[])
 	int procs = atoi(argv[1]);
 	int result = 0;
 	double x, y, Pi;
-	long long int a = min_a, i = 0;//Счетчик //сторона квадарата
-	double Ncirc2 = 0, Ncirc1 = 0;//Количество точек, попавших в круг 
-	double Nmax = 100000; //Общее количество точек
+	long long int a = min_a, i = 0;//РЎС‡РµС‚С‡РёРє //СЃС‚РѕСЂРѕРЅР° РєРІР°РґР°СЂР°С‚Р°
+	double Ncirc2 = 0, Ncirc1 = 0;//РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕС‡РµРє, РїРѕРїР°РІС€РёС… РІ РєСЂСѓРі 
+	double Nmax = 100000; //РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕС‡РµРє
 	int j;
 	/*int fd[2];
 	pipe(fd);
@@ -69,7 +65,7 @@ int main(int argc, char* argv[])
 	{*/
 
 		/* Child process */
-		//for (int x = 0; x < 2; x++) // i, j - cчетчики
+		//for (int x = 0; x < 2; x++) // i, j - cС‡РµС‚С‡РёРєРё
 		//{
 
 		/*if (Mproc1 == 0)
@@ -85,19 +81,19 @@ int main(int argc, char* argv[])
 #pragma omp parallel for private(j) schedule(dynamic) reduction(+:result) 
 			for (int j = 0; j < n; j++)
 			{
-				//x = (rand() % (a * 1000))/1000;  //Рандомный Х с 3 знаками после запятой
-				// y = (rand() % (a * 1000))/1000;  //Рандомный Y с 3 знаками после запятой
+				//x = (rand() % (a * 1000))/1000;  //Р Р°РЅРґРѕРјРЅС‹Р№ РҐ СЃ 3 Р·РЅР°РєР°РјРё РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
+				// y = (rand() % (a * 1000))/1000;  //Р Р°РЅРґРѕРјРЅС‹Р№ Y СЃ 3 Р·РЅР°РєР°РјРё РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
 
 				double a = 2.0;
 				srand(time(NULL) - j * 2);
-				x = ((double)rand() / (double)(RAND_MAX)) * a; //Рандомный Х
+				x = ((double)rand() / (double)(RAND_MAX)) * a; //Р Р°РЅРґРѕРјРЅС‹Р№ РҐ
 				x = x - 1;
 				srand(time(NULL) - j * i * 2);
-				y = ((double)rand() / (double)(RAND_MAX)) * a; //Рандомный Y
+				y = ((double)rand() / (double)(RAND_MAX)) * a; //Р Р°РЅРґРѕРјРЅС‹Р№ Y
 				y = y - 1;
 
 
-				if (y*y <= circle(x, (a / 2)))  //Условие принадлежности точки к кругу
+				if (y*y <= circle(x, (a / 2)))  //РЈСЃР»РѕРІРёРµ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё С‚РѕС‡РєРё Рє РєСЂСѓРіСѓ
 				{
 					Ncirc1++;
 				}
@@ -108,7 +104,7 @@ int main(int argc, char* argv[])
 
 			}
 
-			//printf("Отправка в pipe tochek Pi= %f \n", Ncirc1);
+			//printf("РћС‚РїСЂР°РІРєР° РІ pipe tochek Pi= %f \n", Ncirc1);
 			////Pi=(Ncirc/Nmax)*4; 
 			//close(fd[0]);
 			////printf("\n %lld,%.0f,%f\n",a,Nmax,Pi);
@@ -119,8 +115,8 @@ int main(int argc, char* argv[])
 		//Pi=(Ncirc/Nmax)*4;
 
 		printf("pi = %f\n", Pi);
-			//printf("Отправка в pipe Pi= %f \n", Pi);
-			//printf("Отправка в pipe Pi= %f \n", data_processed);
+			//printf("РћС‚РїСЂР°РІРєР° РІ pipe Pi= %f \n", Pi);
+			//printf("РћС‚РїСЂР°РІРєР° РІ pipe Pi= %f \n", data_processed);
 		/*}*/
 		//}
 
@@ -132,19 +128,19 @@ int main(int argc, char* argv[])
 		//	//while (i<Nmax) 
 		//	for (int j = 0; j < n; j++)
 		//	{
-		//		//x = (rand() % (a * 1000))/1000;  //Рандомный Х с 3 знаками после запятой
-		//		// y = (rand() % (a * 1000))/1000;  //Рандомный Y с 3 знаками после запятой
+		//		//x = (rand() % (a * 1000))/1000;  //Р Р°РЅРґРѕРјРЅС‹Р№ РҐ СЃ 3 Р·РЅР°РєР°РјРё РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
+		//		// y = (rand() % (a * 1000))/1000;  //Р Р°РЅРґРѕРјРЅС‹Р№ Y СЃ 3 Р·РЅР°РєР°РјРё РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
 
 		//		double a = 2.0;
 		//		srand(time(NULL) - j * 2);
-		//		x = ((double)rand() / (double)(RAND_MAX)) * a; //Рандомный Х
+		//		x = ((double)rand() / (double)(RAND_MAX)) * a; //Р Р°РЅРґРѕРјРЅС‹Р№ РҐ
 		//		x = x - 1;
 		//		srand(time(NULL) - j * i * 2);
-		//		y = ((double)rand() / (double)(RAND_MAX)) * a; //Рандомный Y
+		//		y = ((double)rand() / (double)(RAND_MAX)) * a; //Р Р°РЅРґРѕРјРЅС‹Р№ Y
 		//		y = y - 1;
 
 
-		//		if (y*y <= circle(x, (a / 2)))  //Условие принадлежности точки к кругу
+		//		if (y*y <= circle(x, (a / 2)))  //РЈСЃР»РѕРІРёРµ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё С‚РѕС‡РєРё Рє РєСЂСѓРіСѓ
 		//		{
 		//			Ncirc2++;
 		//		}
@@ -152,13 +148,13 @@ int main(int argc, char* argv[])
 		//		i++;
 
 		//	}
-		//	printf("Отправка в pipe tochek Pi= %f \n", Ncirc1);
+		//	printf("РћС‚РїСЂР°РІРєР° РІ pipe tochek Pi= %f \n", Ncirc1);
 		//	//Pi=(Ncirc/Nmax)*4; 
 		//	close(fd[0]);
 		//	//printf("\n %lld,%.0f,%f\n",a,Nmax,Pi);
 		//	data_processed = write(fd[1], &Ncirc2, sizeof(Ncirc2));
-		//	//printf("Отправка в pipe Pi= %f \n", Pi);
-		//	printf("Отправка в pipe Pi= %f \n", data_processed);
+		//	//printf("РћС‚РїСЂР°РІРєР° РІ pipe Pi= %f \n", Pi);
+		//	printf("РћС‚РїСЂР°РІРєР° РІ pipe Pi= %f \n", data_processed);
 
 		//}
 		/////////////////////////////////////////////////////////////////////////////
