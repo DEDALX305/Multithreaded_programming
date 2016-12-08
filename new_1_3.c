@@ -1,4 +1,4 @@
-﻿#include <math.h> 
+#include <math.h> 
 #include <errno.h>
 #include <unistd.h>
 #include <time.h>
@@ -10,10 +10,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int main() {
-
+int main()
+{
 	int procs = 4;
-	int iters = 10000;
+	int iters = 100000000;
 
     struct mq_attr attr = {0};
     attr.mq_flags = 0; // флаг очереди : 0, O_NONBLOCK
@@ -24,7 +24,7 @@ int main() {
 	// O_CREAT при необходимости создает файл с правами доступа, заданными в параметре mode
 	// O_RDWR Открытие для чтения и записи
     if (mqd == -1) 
-	{
+	{ /* Возвращает 0 в случае успешного завершения, –1 – в случае возникновения ошибок */
         int err = errno;
         fprintf(stderr, "%d (%s): не удалось открыть очередь сообщений\n", err, strerror(err));
         return -1;
@@ -83,8 +83,7 @@ int main() {
         }
     }
 
-    mq_close(mqd); // Закрытие очереди сообщений
-				   /*Возвращает 0 в случае успешного завершения. –1 в случае ошибки */
+    mq_close(mqd); // Закрытие очереди сообщений Возвращает 0 в случае успешного завершения. –1 в случае ошибки
     mq_unlink("/pi"); // Удаление очереди сообщений
 
     double pi = (4.0 * total) / (procs * iters);
